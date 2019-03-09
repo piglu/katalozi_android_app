@@ -1,0 +1,346 @@
+﻿Build1=Default,com.katalozi2,full,ads
+File1=arhiva.bal
+File2=clv.bal
+File3=izbrisi.png
+File4=stavka.bal
+File5=trazi.png
+FileGroup1=Default Group
+FileGroup2=Default Group
+FileGroup3=Default Group
+FileGroup4=Default Group
+FileGroup5=Default Group
+Group=Default Group
+IconFile=
+Library1=core
+Library10=phone
+Library2=xcustomlistview
+Library3=okhttputils2
+Library4=xui
+Library5=javaobject
+Library6=stringutils
+Library7=sql
+Library8=runtimepermissions
+Library9=preferenceactivity
+ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: https://www.b4x.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="21" android:targetSdkVersion="28"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~'CreateResourceFromFile(Macro, Themes.DarkTheme)~\n~'End of default text.~\n~SetApplicationAttribute(android:theme, "@style/LightTheme")~\n~CreateResource(values, colors.xml,~\n~<resources>~\n~    <color name="actionbar">#ff039be5</color>~\n~	<color name="statusbar">#ff006db3</color>~\n~	<color name="textColorPrimary">#ffffffff</color>~\n~	<color name="navigationBar">#ff006db3</color>~\n~</resources>~\n~)~\n~CreateResource(values-v20, theme.xml,~\n~<resources>~\n~    <style~\n~        name="LightTheme" parent="@android:style/Theme.Material.Light">~\n~    </style>~\n~</resources>~\n~)~\n~CreateResource(values-v14, theme.xml,~\n~<resources>~\n~    <style~\n~        name="LightTheme" parent="@android:style/Theme.Holo.Light">~\n~    </style>~\n~</resources>~\n~)~\n~AddApplicationText(<activity android:name="anywheresoftware.b4a.objects.preferenceactivity"/>)~\n~'CreateResource(values-v20, theme.xml,~\n~'<resources>~\n~'    <style name="LightTheme" parent="@android:style/Theme.Material.Light">~\n~'		 <item name="android:colorPrimary">@color/actionbar</item>~\n~'		 <item name="android:colorPrimaryDark">@color/statusbar</item>~\n~'		 <item name="android:textColorPrimary">@color/textColorPrimary</item>~\n~'		 <item name="android:navigationBarColor">@color/navigationBar</item>~\n~'    </style>~\n~'</resources>~\n~')~\n~'CreateResource(values-v14, theme.xml,~\n~'<resources>~\n~'    <style name="LightTheme" parent="@android:style/Theme.Holo.Light">~\n~'		<item name="android:actionBarStyle">@style/CustomActionBarStyle</item>~\n~'    </style>~\n~'	<style name="CustomActionBarStyle" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">~\n~'	    <item name="android:background">@color/actionbar</item>~\n~'	</style>~\n~'</resources>~\n~')
+Module1=Starter
+Module2=prikazi_katalog
+Module3=arhiva
+NumberOfFiles=5
+NumberOfLibraries=10
+NumberOfModules=3
+Version=8.5
+@EndOfDesignText@
+#Region  Project Attributes 
+	#ApplicationLabel: Katalozi
+	#VersionCode: 14
+	#VersionName: 3.0
+	'SupportedOrientations possible values: unspecified, landscape or portrait.
+	#SupportedOrientations: unspecified
+	#CanInstallToExternalStorage: False
+#End Region
+
+#Region  Activity Attributes 
+	#FullScreen: False
+	#IncludeTitle: True
+#End Region
+
+Sub Process_Globals
+	'These global variables will be declared once when the application starts.
+	'These variables can be accessed from all modules.
+	Dim linkK As String
+	Public manager As PreferenceManager
+	Dim screen As PreferenceScreen
+	Private awake As PhoneWakeState
+End Sub
+
+Sub Globals
+	'These global variables will be redeclared each time the activity is created.
+	'These variables can only be accessed from this module.
+	Dim link_katalozi As String = "http://katalozi.net"
+	Private clv1 As CustomListView
+	Type katalog(naslov As String, linkSlika As String, linkKatalog As String, opis As String)
+	Dim listaKataloga, listaKatalogaTrazi As List
+	Dim xui As XUI
+	Private lblTitle As Label
+	Private ImageView1 As ImageView
+	Private lblAction1 As Label
+	Private lblContent As Label
+	Dim stu As StringUtils
+	Private edtTrazi As EditText
+	Private btnIzbrisi As Button
+	Dim izTrazi As Boolean
+End Sub
+
+Sub Activity_Create(FirstTime As Boolean)
+	'Do not forget to load the layout file created with the visual designer. For example:
+	Activity.LoadLayout("clv")
+
+	If FirstTime Then
+		CreatePreferenceScreen
+		If manager.GetAll.Size = 0 Then SetDefaults
+	End If
+
+	Activity.AddMenuItem("Postavke", "postavke")
+	Activity.AddMenuItem("Arhiva", "arhiva")
+	Activity.AddMenuItem("O...", "o")
+
+	listaKataloga.Initialize
+	listaKatalogaTrazi.Initialize
+
+	DL_Najnovije
+End Sub
+
+Sub postavke_Click
+	StartActivity(screen.CreateIntent)
+End Sub
+
+Sub SetDefaults
+	'defaults are only set on the first run.
+	manager.SetBoolean("check1", True)
+	manager.SetBoolean("check2", True)
+'	manager.SetBoolean("check2", False)
+'	manager.SetString("edit1", "Hello!")
+'	manager.SetString("list1", "Black")
+End Sub
+
+Sub CreatePreferenceScreen
+	screen.Initialize("Postavke", "")
+	'create two categories
+	Dim cat1 As PreferenceCategory
+	cat1.Initialize("Ostalo")
+	cat1.AddCheckBox("check1", "Arhiva", "Prikaži samo odabrani dućan (inače svi)", False)
+	cat1.AddCheckBox("check2", "Uključi", "Ekran uvijek uključen", False)
+'	cat1.AddCheckBox("check2", "Checkbox2", "This is Checkbox2", False)
+'	cat1.AddEditText("edit1", "EditText1", "This is EditText1", "")
+	
+'	cat2.Initialize("Category 2")
+'	cat2.AddList("list1", "List1", "This is List1", "", _
+	'        Array As String("Black", "Red", "Green", "Blue"))
+		
+	'add the categories to the main screen
+	screen.AddPreferenceCategory(cat1)
+'	screen.AddPreferenceCategory(cat2)
+End Sub
+
+Sub arhiva_Click
+	StartActivity(arhiva)	
+End Sub
+
+Sub o_Click
+	MsgboxAsync("Prikaz najnovijih kataloga" & CRLF & "sa stranice katalozi.net" & CRLF & "v3.0", "Info")
+End Sub
+'
+' dopwnloada najnovije kataloge i sprema podatke o istim u type
+'
+Sub DL_Najnovije
+	Dim j As HttpJob
+
+	listaKataloga.Clear
+
+	j.Initialize("", Me)
+	j.Download(link_katalozi)
+	Wait For (j) JobDone(j As HttpJob)
+	If j.Success Then
+		Dim s As String = j.GetString
+		s = s.Replace("[&hellip;]", "...")
+		s = s.Replace("&#038;", "&")
+		s = s.Replace("&#8211;", "-")
+		s = s.Replace("&#8230;", "...")
+		s = s.Replace("&#8216;", "-")
+		s = s.Replace("&#038;", "&")
+		s = s.Replace("&amp;", "&")
+		s = s.Replace("&#8220;", Chr(30))'$"""$)
+		s = s.Replace("&#8221;", Chr(30))'$"""$)
+		s = s.Replace("&#8217;", Chr(31))'"'")
+		Dim m As Matcher = Regex.Matcher($"<div class="mainbox mt mb">\s+<div class="post" id="post-\d+">\s+<div class="details">\s+<div class="imgOuter">\s+<img alt="(.*?)" title=".*?" src="(.*?)" width="\d+px" height="\d+px" />\s+</div>\s+<div class="detailsOuter">\s+<h2 class="indextitle">\s+<a href="(.*?)" title=".*?">.*?</a><span>.*?</span>\s+</h2>\s+<p>(.*?)</p>\s+</div>\s+<div class="clear"></div>\s+<a href=".*?" class="permalink" title=".*?">.*?</a>\s+<div class="button_over extra">\s+<div class="over_div extrahide">\s+<div class="extrainner">\s+<a href=".*?" title=".*?" class="izd">.*?</a><a href=".*?" title=".*?</a><a href=".*?" title=".*?">.*?</a><a href=".*?" title=".*?">.*?</a>\s+</div>\s+</div>\s+</div>\s+</div>\s+</div>\s+</div>"$, s)'j.GetString)
+		If m.Find Then
+			Log("matcher 1")
+			Do While m.Find
+				Dim kat As katalog
+				kat.Initialize
+				Dim ss As String = m.Group(1)'cursor1.GetString("naslov")
+				ss = ss.Replace(Chr(31), "'")
+				ss = ss.Replace(Chr(30),Chr(34))
+				kat.naslov = ss'Cursor1.GetString("naslov")
+'				kat.naslov = m.Group(1)
+				kat.linkSlika = m.Group(2)
+				kat.linkKatalog = m.Group(3)
+				kat.opis = m.Group(4)'s
+				Dim ss As String = m.Group(3)
+				ss = ss.SubString(ss.LastIndexOf("/")+1)
+				ss = ss.SubString2(0, ss.IndexOf("-"))
+				ss = ss.SubString2(0, 1).ToUpperCase & ss.SubString2(1, ss.Length)
+'				Log(ss)
+				Dim cursor1 As Cursor
+				cursor1 = Starter.upit.ExecQuery($"SELECT naslov FROM arhiva WHERE naslov = '${m.Group(1)}'"$)
+				If cursor1.RowCount < 1 Then
+					Log("već postoji")
+					Starter.upit.ExecNonQuery($"INSERT INTO arhiva VALUES (?, '${m.Group(1)}', '${m.Group(2)}', '${m.Group(3)}', '${m.Group(4)}', '${ss}')"$)
+				End If
+				Dim p As B4XView = xui.CreatePanel("")
+				p.SetLayoutAnimated(0, 0, 0, clv1.AsView.Width, 280dip)
+				clv1.Add(p, kat)
+				listaKataloga.Add(kat)
+			Loop
+		Else
+			Log("matcher 2")
+			Dim m As Matcher = Regex.Matcher($"<div class="post p\d+" id="post-\d+">\s+<a class=".*?" id="arrow-\d+" href=".*?;"></a>\s+<div class=".*?">\s+<div class=".*?">\s+<img alt=".*?" title="(.*?)" src="(.*?)" />\s+</div>\s+</div>\s+<h2><a class=".*?" href="(.*?)">.*?</a></h2>\s+<div class=".*?">\s+<div class=".*?">&raquo;<a href=".*?" class=".*?" title=".*?">.*?</a></div><div class=".*?">(.*?)</div>\s+</div>"$, s)'j.GetString)
+			Do While m.Find
+				Dim kat As katalog
+				kat.Initialize
+				kat.naslov = m.Group(1)
+				kat.linkSlika = m.Group(2)
+				kat.linkKatalog = m.Group(3)
+				kat.opis = m.Group(4)'s
+				Dim ss As String = m.Group(3)
+				ss = ss.SubString(ss.LastIndexOf("/")+1)
+				ss = ss.SubString2(0, ss.IndexOf("-"))
+				ss = ss.SubString2(0, 1).ToUpperCase & ss.SubString2(1, ss.Length)
+'				Log(ss)
+				Dim cursor1 As Cursor
+				cursor1 = Starter.upit.ExecQuery($"SELECT naslov FROM arhiva WHERE naslov = '${m.Group(1)}'"$)
+				If cursor1.RowCount < 1 Then
+					Log("već postoji")
+					Starter.upit.ExecNonQuery($"INSERT INTO arhiva VALUES (?, '${m.Group(1)}', '${m.Group(2)}', '${m.Group(3)}', '${m.Group(4)}', '${ss}')"$)
+				End If
+				Dim p As B4XView = xui.CreatePanel("")
+				p.SetLayoutAnimated(0, 0, 0, clv1.AsView.Width, 280dip)
+				clv1.Add(p, kat)
+				listaKataloga.Add(kat)
+			Loop
+		End If
+	Else
+		Log("neka greška!")
+	End If
+
+	j.Release
+End Sub
+
+Sub dl_slike(lnk As String, iv As ImageView)
+	Dim j As HttpJob
+
+	ProgressDialogShow("Preuzimanje...")
+	j.Initialize("", Me)
+	j.Download(lnk)
+	Wait For (j) JobDone(j As HttpJob)
+	If j.Success Then
+		iv.SetBackgroundImage(j.GetBitmap)
+	End If
+	j.Release
+	ProgressDialogHide
+End Sub
+
+Sub clv1_VisibleRangeChanged (FirstIndex As Int, LastIndex As Int)
+	Dim ExtraSize As Int = 20
+
+	For i = 0 To clv1.Size - 1
+		Dim p As B4XView = clv1.GetPanel(i)
+		If i > FirstIndex - ExtraSize And i < LastIndex + ExtraSize Then
+			'visible+
+			If p.NumberOfViews = 0 Then
+				Dim kk As katalog = clv1.GetValue(i)
+				p.LoadLayout("stavka")
+				lblTitle.Text = kk.naslov
+				lblContent.Text = kk.opis
+				SetTextSize(lblContent, lblContent.Text)
+				SetColorStateList(lblAction1, xui.Color_LightGray, lblAction1.TextColor)
+				dl_slike(kk.linkSlika, ImageView1)
+			End If
+		Else
+			'not visible
+			If p.NumberOfViews > 0 Then
+				p.RemoveAllViews '<--- remove the layout
+			End If
+		End If
+	Next
+End Sub
+
+Sub SetColorStateList(Btn As Label,Pressed As Int,Enabled As Int)
+	Dim States(2, 1) As Int
+	States(0,0) = 16842919    'Pressed
+	States(1,0) = 16842910    'Enabled
+
+	Dim CSL As JavaObject
+	CSL.InitializeNewInstance("android.content.res.ColorStateList", Array(States, Array As Int(Pressed, Enabled)))
+
+	Dim B1 As JavaObject = Btn
+	B1.RunMethod("setTextColor", Array As Object(CSL))
+End Sub
+
+Sub Activity_Resume
+	If manager.GetBoolean("check1") Then
+		awake.KeepAlive(True)
+	End If
+End Sub
+
+Sub Activity_Pause (UserClosed As Boolean)
+	awake.ReleaseKeepAlive
+End Sub
+
+Sub lblAction1_Click
+	Dim index As Int = clv1.GetItemFromView(Sender)
+
+	Dim kk As katalog
+	kk.Initialize
+	If izTrazi Then
+		kk = listaKatalogaTrazi.Get(index)
+	Else
+		kk = listaKataloga.Get(index)
+	End If
+	Log(kk.linkKatalog)
+
+	linkK = kk.linkKatalog
+	StartActivity(prikazi_katalog)
+End Sub
+
+Sub SetTextSize(lbl As Label, txt As String)
+	Dim dt As Float
+	Dim limit = 0.5 As Float
+	Dim h As Int
+
+	lbl.Text = txt
+	lbl.TextSize = 72
+	dt = lbl.TextSize
+	h = stu.MeasureMultilineTextHeight(lbl, txt)
+	Do While dt > limit Or h > lbl.Height
+		dt = dt / 2
+		h = stu.MeasureMultilineTextHeight(lbl, txt)
+		If h > lbl.Height Then
+			lbl.TextSize = lbl.TextSize - dt
+		Else
+			lbl.TextSize = lbl.TextSize + dt
+		End If
+	Loop
+End Sub
+
+Sub edtTrazi_EnterPressed
+	Dim kat As katalog
+
+	izTrazi = True
+	listaKatalogaTrazi.Clear
+	clv1.Clear
+	kat.Initialize
+	For i = 0 To listaKataloga.Size - 1
+		Dim s As String = listaKataloga.Get(i)
+		If s.Contains(edtTrazi.Text) Then
+			kat = listaKataloga.Get(i)
+			Dim p As B4XView = xui.CreatePanel("")
+			p.SetLayoutAnimated(0, 0, 0, clv1.AsView.Width, 280dip)
+			clv1.Add(p, kat)
+			listaKatalogaTrazi.Add(kat)
+		End If
+	Next
+	If clv1.Size = 0 Then
+		MsgboxAsync("Nema traženog pojma!", "Info")
+		btnIzbrisi_Click
+	End If
+End Sub
+
+Sub btnIzbrisi_Click
+	If edtTrazi.Text.EqualsIgnoreCase("") = False Then
+		clv1.Clear
+		edtTrazi.Text = ""
+		izTrazi = False
+		DL_Najnovije
+	End If
+End Sub
