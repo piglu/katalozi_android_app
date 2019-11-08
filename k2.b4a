@@ -28,12 +28,12 @@ Module3=arhiva
 NumberOfFiles=5
 NumberOfLibraries=10
 NumberOfModules=3
-Version=8.5
+Version=9.5
 @EndOfDesignText@
 #Region  Project Attributes 
 	#ApplicationLabel: Katalozi
-	#VersionCode: 14
-	#VersionName: 3.0
+	#VersionCode: 15
+	#VersionName: 3.2
 	'SupportedOrientations possible values: unspecified, landscape or portrait.
 	#SupportedOrientations: unspecified
 	#CanInstallToExternalStorage: False
@@ -290,6 +290,7 @@ Sub lblAction1_Click
 	Log(kk.linkKatalog)
 
 	linkK = kk.linkKatalog
+
 	StartActivity(prikazi_katalog)
 End Sub
 

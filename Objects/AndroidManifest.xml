@@ -2,8 +2,8 @@
 <manifest
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	package="com.katalozi2"
-	android:versionCode="14"
-	android:versionName="3.0"
+	android:versionCode="15"
+	android:versionName="3.2"
 	android:installLocation="internalOnly">
 	
 	<uses-sdk android:minSdkVersion="21" android:targetSdkVersion="28"/>
@@ -13,6 +13,7 @@
 	    android:anyDensity="true"/>
 	<uses-permission android:name="android.permission.WAKE_LOCK"/>
 	<uses-permission android:name="android.permission.INTERNET"/>
+	<uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 	<application
 		android:icon="@drawable/icon"
 		android:label="Katalozi"
@@ -49,9 +50,9 @@
 			android:label="Katalozi"
 			android:screenOrientation="unspecified">
 		</activity>
-		<service android:name="anywheresoftware.b4a.samples.httputils2.httputils2service">
+		<service android:name=".httputils2service">
 		</service>
-		<receiver android:name="anywheresoftware.b4a.samples.httputils2.httputils2service$httputils2service_BR">
+		<receiver android:name=".httputils2service$httputils2service_BR">
 		</receiver>
 	</application>
 </manifest>

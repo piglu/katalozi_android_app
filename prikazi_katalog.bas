@@ -56,55 +56,37 @@ Sub Activity_Pause (UserClosed As Boolean)
 End Sub
 
 Sub ParsajStranicuZaLink(stranica As String)
-	Dim drugi As Boolean
+	Dim prvi As Boolean = False
 
 	vrijednost = ""
-'	Dim m As Matcher = Regex.Matcher($"<div id="katalog_show"><div data-configid="(\d+/\d+)" style="width:\d+px; height:\d+px;" class="issuuembed"></div>\s+<script type="text/rocketscript" data-rocketsrc="//e.issuu.com/embed.js" async="true"></script></div>"$, stranica)
-'	Dim m As Matcher = Regex.Matcher($"<div id="katalog_show"><div data-configid="(\d+/\d+)" style="width:\d+px; height:\d+px;" class="issuuembed"></div>\s+<script type="text/javascript" src="//e.issuu.com/embed.js" async="true"></script></div>"$, stranica)
-	Dim m As Matcher = Regex.Matcher($"<div id="katalog_show"><div data-configid="(\d+/\d+)""$, stranica)
+
+	Dim m As Matcher = Regex.Matcher($"<div id="katalog_show"><iframe allowfullscreen allow=".*" style=".*" src="(.*)"></iframe></div>"$, stranica)
 	Do While m.Find
-'		Log(m.Group(1))
 		vrijednost = m.Group(1)
+		prvi = True
 	Loop
 
-	Dim m As Matcher = Regex.Matcher($"<div class="display_outer"><a href="(.*?)""$, stranica)
-	Do While m.Find
-'		Log(m.Group(1))
-		vrijednost = m.Group(1)
-		drugi = True
-	Loop
-
-	If vrijednost.Length > 1 Then
-		PregledKataloga(drugi)
-	Else
-		Dim m As Matcher = Regex.Matcher($"src="(//e.issuu.com/embed.html#\d+/\d+)""$, stranica)
-		' http://e.issuu.com/embed.html#5420532/42640638
+	If prvi = False Then
+		Dim m As Matcher = Regex.Matcher($"<div class="display_outer"><a href="(.*)" rel=".*" title=""><img alt="" title="" src=".*" /></a></div>"$, stranica)
 		Do While m.Find
-'			Log(m.Group(1))
 			vrijednost = m.Group(1)
 		Loop
-'		vrijednost = "http:" & vrijednost
-		If vrijednost.Length > 1 Then
-			PregledKataloga2
-		Else
-			Msgbox("Neki problemi?!", "Greška")
-			Activity.Finish
-		End If
 	End If
-
-'	ProgressDialogHide
+	
+	PregledKataloga2
 End Sub
 
-Sub PregledKataloga(d As Boolean)
-	If d Then
-		wv.LoadUrl(vrijednost)
-	Else
-		wv.LoadUrl("http://e.issuu.com/embed.html#" & vrijednost)
-	End If
-End Sub
+'Sub PregledKataloga(d As Boolean)
+'	If d Then
+'		wv.LoadUrl(vrijednost)
+'	Else
+'		wv.LoadUrl("http://e.issuu.com/embed.html#" & vrijednost)
+'	End If
+'End Sub
 
 Sub PregledKataloga2
 	wv.LoadUrl("http:" & vrijednost)
+'	wv.LoadUrl(vrijednost)
 End Sub
 
 Sub wv_PageFinished (Url As String)
